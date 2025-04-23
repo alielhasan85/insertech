@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 const AnimatedBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -9,7 +9,7 @@ const AnimatedBackground = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let width = window.innerWidth;
@@ -24,7 +24,7 @@ const AnimatedBackground = () => {
     };
 
     setCanvasSize();
-    window.addEventListener('resize', setCanvasSize);
+    window.addEventListener("resize", setCanvasSize);
 
     class Particle {
       x: number;
@@ -44,13 +44,13 @@ const AnimatedBackground = () => {
         this.speedY = Math.random() * 1 - 0.5;
         this.opacity = Math.random() * 0.5 + 0.2;
         this.pulseSpeed = Math.random() * 0.01;
-        
+
         const colors = [
-          '59, 130, 246',  // Blue
-          '99, 102, 241',  // Indigo
-          '16, 185, 129',  // Emerald
-          '14, 165, 233',  // Sky
-          '168, 85, 247',  // Purple
+          "59, 130, 246", // Blue
+          "99, 102, 241", // Indigo
+          "16, 185, 129", // Emerald
+          "14, 165, 233", // Sky
+          "168, 85, 247", // Purple
         ];
         this.color = colors[Math.floor(Math.random() * colors.length)];
       }
@@ -79,12 +79,13 @@ const AnimatedBackground = () => {
 
     const particleCount = Math.min(Math.floor((width * height) / 8000), 150);
     const particles: Particle[] = [];
-    
+
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
 
     function drawGradient() {
+      if (!ctx) return;
       const gradient = ctx.createRadialGradient(
         width / 2,
         height / 2,
@@ -93,24 +94,25 @@ const AnimatedBackground = () => {
         height / 2,
         width / 1.5
       );
-      gradient.addColorStop(0, 'rgba(10, 10, 20, 0.8)');
-      gradient.addColorStop(1, 'rgba(5, 5, 15, 0.9)');
-      
+      gradient.addColorStop(0, "rgba(10, 10, 20, 0.8)");
+      gradient.addColorStop(1, "rgba(5, 5, 15, 0.9)");
+
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
     }
 
     function connectParticles() {
       const maxDistance = 150;
-      
+
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < maxDistance) {
-            const opacity = (1 - (distance / maxDistance)) * 0.3;
+            const opacity = (1 - distance / maxDistance) * 0.3;
+            if (!ctx) return;
             ctx.beginPath();
             ctx.strokeStyle = `rgba(99, 102, 241, ${opacity})`;
             ctx.lineWidth = 0.5;
@@ -123,14 +125,16 @@ const AnimatedBackground = () => {
     }
 
     function animate() {
-      ctx.clearRect(0, 0, width, height);
+      if (ctx) {
+        ctx.clearRect(0, 0, width, height);
+      }
       drawGradient();
-      
-      particles.forEach(particle => {
+
+      particles.forEach((particle) => {
         particle.update();
         particle.draw();
       });
-      
+
       connectParticles();
       animationFrameId = requestAnimationFrame(animate);
     }
@@ -138,14 +142,14 @@ const AnimatedBackground = () => {
     animate();
 
     return () => {
-      window.removeEventListener('resize', setCanvasSize);
+      window.removeEventListener("resize", setCanvasSize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
   return (
-    <canvas 
-      ref={canvasRef} 
+    <canvas
+      ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full -z-10"
     />
   );
